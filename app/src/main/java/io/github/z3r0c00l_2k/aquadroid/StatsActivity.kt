@@ -82,7 +82,7 @@ class StatsActivity : AppCompatActivity() {
 
             val leftAxis = chart.axisLeft
             leftAxis.axisMinimum = 0f // always start at zero
-            val maxObject: Entry = entries.maxBy { it.y }!! // entries is not empty here
+            val maxObject: Entry = entries.maxByOrNull { it.y }!! // entries is not empty here
             leftAxis.axisMaximum = max(a = maxObject.y, b = 100f) + 15f // 15% margin on top
             val targetLine = LimitLine(100f, "")
             targetLine.enableDashedLine(5f, 5f, 0f)
