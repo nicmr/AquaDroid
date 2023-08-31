@@ -14,8 +14,9 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import io.github.z3r0c00l_2k.aquadroid.helpers.SqliteHelper
-import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
 import io.github.z3r0c00l_2k.aquadroid.utils.ChartXValueFormatter
+import io.github.z3r0c00l_2k.aquadroid.utils.SharedPrefKeys
+import io.github.z3r0c00l_2k.aquadroid.utils.getCurrentDate
 import kotlinx.android.synthetic.main.activity_stats.*
 import kotlin.math.max
 
@@ -31,7 +32,7 @@ class StatsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
 
-        sharedPref = getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+        sharedPref = getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
         sqliteHelper = SqliteHelper(this)
 
         btnBack.setOnClickListener {
@@ -109,9 +110,9 @@ class StatsActivity : AppCompatActivity() {
             chart.invalidate()
 
             val remaining = sharedPref.getInt(
-                AppUtils.TOTAL_INTAKE,
+                SharedPrefKeys.TOTAL_INTAKE,
                 0
-            ) - sqliteHelper.getIntook(AppUtils.getCurrentDate()!!)
+            ) - sqliteHelper.getIntook(getCurrentDate()!!)
 
             if (remaining > 0) {
                 remainingIntake.text = "$remaining ml"
@@ -120,13 +121,13 @@ class StatsActivity : AppCompatActivity() {
             }
 
             targetIntake.text = "${sharedPref.getInt(
-                AppUtils.TOTAL_INTAKE,
+                SharedPrefKeys.TOTAL_INTAKE,
                 0
             )
             } ml"
 
-            val percentage = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!) * 100 / sharedPref.getInt(
-                AppUtils.TOTAL_INTAKE,
+            val percentage = sqliteHelper.getIntook(getCurrentDate()!!) * 100 / sharedPref.getInt(
+                SharedPrefKeys.TOTAL_INTAKE,
                 0
             )
             waterLevelView.centerTitle = "$percentage%"

@@ -21,7 +21,8 @@ import com.google.android.material.textfield.TextInputLayout
 import io.github.z3r0c00l_2k.aquadroid.fragments.BottomSheetFragment
 import io.github.z3r0c00l_2k.aquadroid.helpers.AlarmHelper
 import io.github.z3r0c00l_2k.aquadroid.helpers.SqliteHelper
-import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
+import io.github.z3r0c00l_2k.aquadroid.utils.getCurrentDate
+import io.github.z3r0c00l_2k.aquadroid.utils.SharedPrefKeys
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_test.amount0Text
 import kotlinx.android.synthetic.main.activity_main_test.amount1Text
@@ -46,22 +47,30 @@ class MainActivity : AppCompatActivity() {
     private var editMode: Boolean = false
 
     // TODO: consider placing these in separate class to reduce array indexing required
-    private var configuredAmounts = ArrayList<Int>()
+    private var configuredAmounts = arrayOf(50, 100, 150, 200, 250, 300)
     private var amountTextViews = ArrayList<TextView>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_test)
 
-        sharedPref = getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+        sharedPref = getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
         sqliteHelper = SqliteHelper(this)
 
-        totalIntake = sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0)
+        totalIntake = sharedPref.getInt(SharedPrefKeys.TOTAL_INTAKE, 0)
+
+        SharedPrefKeys.CONFIGURED_AMOUNT_KEYS.forEachIndexed {
+            idx, key -> configuredAmounts[idx] = sharedPref.getInt(key, configuredAmounts[idx])
+        }
 
         setAmountTextViews()
-        setConfiguredAmountsDefault()
 
-        if (sharedPref.getBoolean(AppUtils.FIRST_RUN_KEY, true)) {
+        amountTextViews.forEachIndexed { idx, textview ->
+            val amountText = configuredAmounts[idx].toString()
+            textview.text = "${amountText} ml"
+        }
+
+        if (sharedPref.getBoolean(SharedPrefKeys.FIRST_RUN_KEY, true)) {
             startActivity(Intent(this, WalkThroughActivity::class.java))
             finish()
         } else if (totalIntake <= 0) {
@@ -69,12 +78,9 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-        dateNow = AppUtils.getCurrentDate()!!
+        dateNow = getCurrentDate()!!
     }
 
-    private fun setConfiguredAmountsDefault() {
-        this.configuredAmounts.addAll(listOf(50, 100, 150, 200, 250, 300))
-    }
     private fun setAmountTextViews() {
         this.amountTextViews.addAll(
             listOf(
@@ -88,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateValues() {
-        totalIntake = sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0)
+        totalIntake = sharedPref.getInt(SharedPrefKeys.TOTAL_INTAKE, 0)
         inTook = sqliteHelper.getIntook(dateNow)
         setWaterLevel(inTook, totalIntake)
     }
@@ -131,9 +137,11 @@ class MainActivity : AppCompatActivity() {
         alertDialogBuilder.setPositiveButton("OK") { dialog, id ->
             val inputText = userInput.editText!!.text.toString() // check if there is an alternative to !! here
             if (!TextUtils.isEmpty(inputText)) {
-//                tvCustom.text = "${inputText} ml"
                 this.amountTextViews[fieldIndex].text = "${inputText} ml"
                 configuredAmounts[fieldIndex] = inputText.toInt()
+                val editor = sharedPref.edit()
+                editor.putInt(SharedPrefKeys.CONFIGURED_AMOUNT_KEYS[fieldIndex], configuredAmounts[fieldIndex])
+                editor.apply()
             }
         }.setNegativeButton("Cancel") { dialog, _ ->
             dialog.cancel()
@@ -154,13 +162,13 @@ class MainActivity : AppCompatActivity() {
             true
         )
 
-        notificStatus = sharedPref.getBoolean(AppUtils.NOTIFICATION_STATUS_KEY, true)
+        notificStatus = sharedPref.getBoolean(SharedPrefKeys.NOTIFICATION_STATUS_KEY, true)
         val alarm = AlarmHelper()
         if (!alarm.checkAlarm(this) && notificStatus) {
             btnNotific.setImageDrawable(getDrawable(R.drawable.ic_bell))
             alarm.setAlarm(
                 this,
-                sharedPref.getInt(AppUtils.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
+                sharedPref.getInt(SharedPrefKeys.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
             )
         }
 
@@ -226,13 +234,13 @@ class MainActivity : AppCompatActivity() {
 
         btnNotific.setOnClickListener {
             notificStatus = !notificStatus
-            sharedPref.edit().putBoolean(AppUtils.NOTIFICATION_STATUS_KEY, notificStatus).apply()
+            sharedPref.edit().putBoolean(SharedPrefKeys.NOTIFICATION_STATUS_KEY, notificStatus).apply()
             if (notificStatus) {
                 btnNotific.setImageDrawable(getDrawable(R.drawable.ic_bell))
                 Snackbar.make(it, "Notification Enabled..", Snackbar.LENGTH_SHORT).show()
                 alarm.setAlarm(
                     this,
-                    sharedPref.getInt(AppUtils.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
+                    sharedPref.getInt(SharedPrefKeys.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
                 )
             } else {
                 btnNotific.setImageDrawable(getDrawable(R.drawable.ic_bell_disabled))

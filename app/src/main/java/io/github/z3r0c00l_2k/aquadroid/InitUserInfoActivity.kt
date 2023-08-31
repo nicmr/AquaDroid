@@ -12,7 +12,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
+import io.github.z3r0c00l_2k.aquadroid.utils.SharedPrefKeys
+import io.github.z3r0c00l_2k.aquadroid.utils.calculateIntake
 import kotlinx.android.synthetic.main.activity_init_user_info.*
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -37,10 +38,10 @@ class InitUserInfoActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_init_user_info)
 
-        sharedPref = getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+        sharedPref = getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
 
-        wakeupTime = sharedPref.getLong(AppUtils.WAKEUP_TIME, 1558323000000)
-        sleepingTime = sharedPref.getLong(AppUtils.SLEEPING_TIME_KEY, 1558369800000)
+        wakeupTime = sharedPref.getLong(SharedPrefKeys.WAKEUP_TIME, 1558323000000)
+        sleepingTime = sharedPref.getLong(SharedPrefKeys.SLEEPING_TIME_KEY, 1558369800000)
 
         etWakeUpTime.editText!!.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -117,16 +118,16 @@ class InitUserInfoActivity : AppCompatActivity() {
                 else -> {
 
                     val editor = sharedPref.edit()
-                    editor.putInt(AppUtils.WEIGHT_KEY, weight.toInt())
-                    editor.putInt(AppUtils.WORK_TIME_KEY, workTime.toInt())
-                    editor.putLong(AppUtils.WAKEUP_TIME, wakeupTime)
-                    editor.putLong(AppUtils.SLEEPING_TIME_KEY, sleepingTime)
-                    editor.putBoolean(AppUtils.FIRST_RUN_KEY, false)
+                    editor.putInt(SharedPrefKeys.WEIGHT_KEY, weight.toInt())
+                    editor.putInt(SharedPrefKeys.WORK_TIME_KEY, workTime.toInt())
+                    editor.putLong(SharedPrefKeys.WAKEUP_TIME, wakeupTime)
+                    editor.putLong(SharedPrefKeys.SLEEPING_TIME_KEY, sleepingTime)
+                    editor.putBoolean(SharedPrefKeys.FIRST_RUN_KEY, false)
 
-                    val totalIntake = AppUtils.calculateIntake(weight.toInt(), workTime.toInt())
+                    val totalIntake = calculateIntake(weight.toInt(), workTime.toInt())
                     val df = DecimalFormat("#")
                     df.roundingMode = RoundingMode.CEILING
-                    editor.putInt(AppUtils.TOTAL_INTAKE, df.format(totalIntake).toInt())
+                    editor.putInt(SharedPrefKeys.TOTAL_INTAKE, df.format(totalIntake).toInt())
 
                     editor.apply()
                     startActivity(Intent(this, MainActivity::class.java))

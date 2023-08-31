@@ -6,6 +6,9 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
+// TODO: use prepared statements for performance and security
+// TODO: refactor 'intook'
+// TODO: consider passing dates in as actual dates instead of strings
 class SqliteHelper(val context: Context) : SQLiteOpenHelper(
     context,
     DATABASE_NAME, null,
@@ -13,20 +16,27 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
 ) {
 
     companion object {
-        private val DATABASE_VERSION = 1
-        private val DATABASE_NAME = "Aqua"
-        private val TABLE_STATS = "stats"
-        private val KEY_ID = "id"
-        private val KEY_DATE = "date"
-        private val KEY_INTOOK = "intook"
-        private val KEY_TOTAL_INTAKE = "totalintake"
+        // general values
+        private const val DATABASE_VERSION = 1
+        private const val DATABASE_NAME = "Aqua"
+        private const val TABLE_STATS = "stats"
+        private const val TABLE_CONFIGURED_AMOUNTS = ""
+
+        // specific to stats table
+        private const val STATS_KEY_ID = "id"
+        private const val STATS_KEY_DATE = "date"
+        private const val STATS_KEY_INTOOK = "intook"
+        private const val STATS_KEY_TOTAL_INTAKE = "totalintake"
+
+        // specific to configuredAmounts table
+//        private const val
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
 
         val CREATE_STATS_TABLE = ("CREATE TABLE " + TABLE_STATS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_DATE + " TEXT UNIQUE,"
-                + KEY_INTOOK + " INT," + KEY_TOTAL_INTAKE + " INT" + ")")
+                + STATS_KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + STATS_KEY_DATE + " TEXT UNIQUE,"
+                + STATS_KEY_INTOOK + " INT," + STATS_KEY_TOTAL_INTAKE + " INT" + ")")
         db?.execSQL(CREATE_STATS_TABLE)
 
     }
@@ -39,9 +49,9 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
     fun addAll(date: String, intook: Int, totalintake: Int): Long {
         if (checkExistance(date) == 0) {
             val values = ContentValues()
-            values.put(KEY_DATE, date)
-            values.put(KEY_INTOOK, intook)
-            values.put(KEY_TOTAL_INTAKE, totalintake)
+            values.put(STATS_KEY_DATE, date)
+            values.put(STATS_KEY_INTOOK, intook)
+            values.put(STATS_KEY_TOTAL_INTAKE, totalintake)
             val db = this.writableDatabase
             val response = db.insert(TABLE_STATS, null, values)
             db.close()
@@ -51,11 +61,11 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
     }
 
     fun getIntook(date: String): Int {
-        val selectQuery = "SELECT $KEY_INTOOK FROM $TABLE_STATS WHERE $KEY_DATE = ?"
+        val selectQuery = "SELECT $STATS_KEY_INTOOK FROM $TABLE_STATS WHERE $STATS_KEY_DATE = ?"
         val db = this.readableDatabase
         db.rawQuery(selectQuery, arrayOf(date)).use {
             if (it.moveToFirst()) {
-                return it.getInt(it.getColumnIndex(KEY_INTOOK))
+                return it.getInt(it.getColumnIndex(STATS_KEY_INTOOK))
             }
         }
         return 0
@@ -65,15 +75,15 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         val intook = getIntook(date)
         val db = this.writableDatabase
         val contentValues = ContentValues()
-        contentValues.put(KEY_INTOOK, intook + selectedOption)
+        contentValues.put(STATS_KEY_INTOOK, intook + selectedOption)
 
-        val response = db.update(TABLE_STATS, contentValues, "$KEY_DATE = ?", arrayOf(date))
+        val response = db.update(TABLE_STATS, contentValues, "$STATS_KEY_DATE = ?", arrayOf(date))
         db.close()
         return response
     }
 
     fun checkExistance(date: String): Int {
-        val selectQuery = "SELECT $KEY_INTOOK FROM $TABLE_STATS WHERE $KEY_DATE = ?"
+        val selectQuery = "SELECT $STATS_KEY_INTOOK FROM $TABLE_STATS WHERE $STATS_KEY_DATE = ?"
         val db = this.readableDatabase
         db.rawQuery(selectQuery, arrayOf(date)).use {
             if (it.moveToFirst()) {
@@ -94,9 +104,9 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         val intook = getIntook(date)
         val db = this.writableDatabase
         val contentValues = ContentValues()
-        contentValues.put(KEY_TOTAL_INTAKE, totalintake)
+        contentValues.put(STATS_KEY_TOTAL_INTAKE, totalintake)
 
-        val response = db.update(TABLE_STATS, contentValues, "$KEY_DATE = ?", arrayOf(date))
+        val response = db.update(TABLE_STATS, contentValues, "$STATS_KEY_DATE = ?", arrayOf(date))
         db.close()
         return response
     }
