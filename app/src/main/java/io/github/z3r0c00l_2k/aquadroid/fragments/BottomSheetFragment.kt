@@ -3,6 +3,7 @@ package io.github.z3r0c00l_2k.aquadroid.fragments
 import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.RingtoneManager
@@ -18,7 +19,9 @@ import io.github.z3r0c00l_2k.aquadroid.MainActivity
 import io.github.z3r0c00l_2k.aquadroid.R
 import io.github.z3r0c00l_2k.aquadroid.helpers.AlarmHelper
 import io.github.z3r0c00l_2k.aquadroid.helpers.SqliteHelper
-import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
+import io.github.z3r0c00l_2k.aquadroid.utils.SharedPrefKeys
+import io.github.z3r0c00l_2k.aquadroid.utils.calculateIntake
+import io.github.z3r0c00l_2k.aquadroid.utils.getCurrentDate
 import kotlinx.android.synthetic.main.bottom_sheet_fragment.*
 import java.math.RoundingMode
 import java.text.DateFormat
@@ -53,19 +56,19 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
 
         val is24h = android.text.format.DateFormat.is24HourFormat(mCtx)
 
-        sharedPref = mCtx.getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+        sharedPref = mCtx.getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
 
-        etWeight.editText!!.setText("" + sharedPref.getInt(AppUtils.WEIGHT_KEY, 0))
-        etWorkTime.editText!!.setText("" + sharedPref.getInt(AppUtils.WORK_TIME_KEY, 0))
-        etTarget.editText!!.setText("" + sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0))
+        etWeight.editText!!.setText("" + sharedPref.getInt(SharedPrefKeys.WEIGHT_KEY, 0))
+        etWorkTime.editText!!.setText("" + sharedPref.getInt(SharedPrefKeys.WORK_TIME_KEY, 0))
+        etTarget.editText!!.setText("" + sharedPref.getInt(SharedPrefKeys.TOTAL_INTAKE, 0))
         etNotificationText.editText!!.setText(
             sharedPref.getString(
-                AppUtils.NOTIFICATION_MSG_KEY,
+                SharedPrefKeys.NOTIFICATION_MSG_KEY,
                 "Hey... Lets drink some water...."
             )
         )
         currentToneUri = sharedPref.getString(
-            AppUtils.NOTIFICATION_TONE_URI_KEY,
+            SharedPrefKeys.NOTIFICATION_TONE_URI_KEY,
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString()
         )
         etRingtone.editText!!.setText(
@@ -83,7 +86,7 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
                 else -> 30
             }
         }
-        notificFrequency = sharedPref.getInt(AppUtils.NOTIFICATION_FREQUENCY_KEY, 30)
+        notificFrequency = sharedPref.getInt(SharedPrefKeys.NOTIFICATION_FREQUENCY_KEY, 30)
         when (notificFrequency) {
             30 -> radioNotificItervel.position = 0
             45 -> radioNotificItervel.position = 1
@@ -107,8 +110,8 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
             startActivityForResult(intent, 999)
         }
 
-        wakeupTime = sharedPref.getLong(AppUtils.WAKEUP_TIME, 1558323000000)
-        sleepingTime = sharedPref.getLong(AppUtils.SLEEPING_TIME_KEY, 1558369800000)
+        wakeupTime = sharedPref.getLong(SharedPrefKeys.WAKEUP_TIME, 1558323000000)
+        sleepingTime = sharedPref.getLong(SharedPrefKeys.SLEEPING_TIME_KEY, 1558369800000)
         val cal = Calendar.getInstance()
         cal.timeInMillis = wakeupTime
         etWakeUpTime.editText!!.setText(
@@ -178,7 +181,7 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
 
         btnUpdate.setOnClickListener {
 
-            val currentTarget = sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0)
+            val currentTarget = sharedPref.getInt(SharedPrefKeys.TOTAL_INTAKE, 0)
 
             weight = etWeight.editText!!.text.toString()
             workTime = etWorkTime.editText!!.text.toString()
@@ -222,30 +225,30 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
                 else -> {
 
                     val editor = sharedPref.edit()
-                    editor.putInt(AppUtils.WEIGHT_KEY, weight.toInt())
-                    editor.putInt(AppUtils.WORK_TIME_KEY, workTime.toInt())
-                    editor.putLong(AppUtils.WAKEUP_TIME, wakeupTime)
-                    editor.putLong(AppUtils.SLEEPING_TIME_KEY, sleepingTime)
-                    editor.putString(AppUtils.NOTIFICATION_MSG_KEY, notificMsg)
-                    editor.putInt(AppUtils.NOTIFICATION_FREQUENCY_KEY, notificFrequency)
+                    editor.putInt(SharedPrefKeys.WEIGHT_KEY, weight.toInt())
+                    editor.putInt(SharedPrefKeys.WORK_TIME_KEY, workTime.toInt())
+                    editor.putLong(SharedPrefKeys.WAKEUP_TIME, wakeupTime)
+                    editor.putLong(SharedPrefKeys.SLEEPING_TIME_KEY, sleepingTime)
+                    editor.putString(SharedPrefKeys.NOTIFICATION_MSG_KEY, notificMsg)
+                    editor.putInt(SharedPrefKeys.NOTIFICATION_FREQUENCY_KEY, notificFrequency)
 
                     val sqliteHelper = SqliteHelper(mCtx)
 
                     if (currentTarget != customTarget.toInt()) {
-                        editor.putInt(AppUtils.TOTAL_INTAKE, customTarget.toInt())
+                        editor.putInt(SharedPrefKeys.TOTAL_INTAKE, customTarget.toInt())
 
                         sqliteHelper.updateTotalIntake(
-                            AppUtils.getCurrentDate()!!,
+                            getCurrentDate()!!,
                             customTarget.toInt()
                         )
                     } else {
-                        val totalIntake = AppUtils.calculateIntake(weight.toInt(), workTime.toInt())
+                        val totalIntake = calculateIntake(weight.toInt(), workTime.toInt())
                         val df = DecimalFormat("#")
                         df.roundingMode = RoundingMode.CEILING
-                        editor.putInt(AppUtils.TOTAL_INTAKE, df.format(totalIntake).toInt())
+                        editor.putInt(SharedPrefKeys.TOTAL_INTAKE, df.format(totalIntake).toInt())
 
                         sqliteHelper.updateTotalIntake(
-                            AppUtils.getCurrentDate()!!,
+                            getCurrentDate()!!,
                             df.format(totalIntake).toInt()
                         )
                     }
@@ -257,7 +260,7 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
                     alarmHelper.cancelAlarm(mCtx)
                     alarmHelper.setAlarm(
                         mCtx,
-                        sharedPref.getInt(AppUtils.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
+                        sharedPref.getInt(SharedPrefKeys.NOTIFICATION_FREQUENCY_KEY, 30).toLong()
                     )
                     dismiss()
                     (activity as MainActivity?)!!.updateValues()
@@ -272,7 +275,7 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
 
             val uri = data!!.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) as Uri
             currentToneUri = uri.toString()
-            sharedPref.edit().putString(AppUtils.NOTIFICATION_TONE_URI_KEY, currentToneUri).apply()
+            sharedPref.edit().putString(SharedPrefKeys.NOTIFICATION_TONE_URI_KEY, currentToneUri).apply()
             val ringtone = RingtoneManager.getRingtone(mCtx, uri)
             etRingtone.editText!!.setText(ringtone.getTitle(mCtx))
 

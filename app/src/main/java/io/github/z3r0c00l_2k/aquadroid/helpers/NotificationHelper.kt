@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -16,7 +17,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import io.github.z3r0c00l_2k.aquadroid.MainActivity
 import io.github.z3r0c00l_2k.aquadroid.R
-import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
+import io.github.z3r0c00l_2k.aquadroid.utils.SharedPrefKeys
+import io.github.z3r0c00l_2k.aquadroid.utils.getCurrentDate
 import java.util.*
 
 class NotificationHelper(val ctx: Context) {
@@ -28,9 +30,9 @@ class NotificationHelper(val ctx: Context) {
 
     private fun createChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val prefs = ctx.getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+            val prefs = ctx.getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
             val notificationsNewMessageRingtone = prefs.getString(
-                AppUtils.NOTIFICATION_TONE_URI_KEY, RingtoneManager.getDefaultUri(
+                SharedPrefKeys.NOTIFICATION_TONE_URI_KEY, RingtoneManager.getDefaultUri(
                     RingtoneManager.TYPE_NOTIFICATION
                 ).toString()
             )
@@ -89,17 +91,17 @@ class NotificationHelper(val ctx: Context) {
     }
 
     private fun shallNotify(): Boolean {
-        val prefs = ctx.getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
+        val prefs = ctx.getSharedPreferences(SharedPrefKeys.USERS_SHARED_PREF, MODE_PRIVATE)
         val sqliteHelper = SqliteHelper(ctx)
 
-        val startTimestamp = prefs.getLong(AppUtils.WAKEUP_TIME, 0)
-        val stopTimestamp = prefs.getLong(AppUtils.SLEEPING_TIME_KEY, 0)
-        val totalIntake = prefs.getInt(AppUtils.TOTAL_INTAKE, 0)
+        val startTimestamp = prefs.getLong(SharedPrefKeys.WAKEUP_TIME, 0)
+        val stopTimestamp = prefs.getLong(SharedPrefKeys.SLEEPING_TIME_KEY, 0)
+        val totalIntake = prefs.getInt(SharedPrefKeys.TOTAL_INTAKE, 0)
 
         if (startTimestamp == 0L || stopTimestamp == 0L || totalIntake == 0)
             return false
 
-        val percent = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!) * 100 / totalIntake
+        val percent = sqliteHelper.getIntook(getCurrentDate()!!) * 100 / totalIntake
 
         val now = Calendar.getInstance().time
 

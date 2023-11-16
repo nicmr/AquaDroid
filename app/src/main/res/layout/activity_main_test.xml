@@ -5,7 +5,7 @@
         android:id="@+id/main_activity_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/ic_app_bg"
+        android:background="@drawable/ic_app_bg_dark"
         tools:context=".MainActivity">
 
     <ImageView
@@ -26,46 +26,50 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="Toggle notifications"
             android:padding="8dp"
             android:src="@drawable/ic_bell"
             app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/fabAdd"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
+            app:layout_constraintEnd_toStartOf="@+id/btnEdit"
+            app:layout_constraintHorizontal_bias="0.508"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView" />
+            app:layout_constraintTop_toBottomOf="@+id/intakeProgress" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="180dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="180dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="Edit intake amounts"
+            android:padding="8dp"
+            android:src="@drawable/ic_edit"
+            app:backgroundTint="#41B279"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/intakeProgress" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnStats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="View statistics"
             android:padding="8dp"
             android:src="@drawable/ic_stats"
             app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/fabAdd"
-            app:layout_constraintTop_toBottomOf="@+id/cardView" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:clickable="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView"
-            app:srcCompat="@drawable/ic_plus_solid" />
+            app:layout_constraintStart_toEndOf="@+id/btnEdit"
+            app:layout_constraintTop_toBottomOf="@+id/intakeProgress" />
 
     <TextView
             android:id="@+id/textView5"
@@ -84,12 +88,12 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="170dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="140dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="30dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_max="300dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -125,7 +129,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/op100ml"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="1.0">
 
                     <ImageView
                             android:layout_width="wrap_content"
@@ -133,6 +138,7 @@
                             android:src="@drawable/ic_water_glass" />
 
                     <TextView
+                            android:id="@+id/amount0Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -169,6 +175,7 @@
                             app:srcCompat="@drawable/ic_coffee_cup" />
 
                     <TextView
+                            android:id="@+id/amount1Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -196,6 +203,7 @@
                             app:srcCompat="@drawable/ic_tea" />
 
                     <TextView
+                            android:id="@+id/amount2Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -244,6 +252,7 @@
                             app:srcCompat="@drawable/ic_cola" />
 
                     <TextView
+                            android:id="@+id/amount3Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -271,6 +280,7 @@
                             app:srcCompat="@drawable/ic_juice" />
 
                     <TextView
+                            android:id="@+id/amount4Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -302,7 +312,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Custom"
+                            android:text="300ml"
                             android:textColor="@color/colorBlack" />
 
                 </LinearLayout>
